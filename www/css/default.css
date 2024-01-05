@@ -352,6 +352,10 @@ label.invalid {
 }
 
 
+.languages {
+    overflow-x: auto;
+}
+
 .buttons {
     display: table;
     border-collapse: separate;
@@ -870,6 +874,10 @@ table.list .date {
 #upload_form textarea[name="message"] {
     width: 100%;
     resize: vertical;
+}
+
+#upload_form .fieldcontainer[data-option="hide_sender_email"] {
+  display: none;
 }
 
 #upload_form .advanced_options {

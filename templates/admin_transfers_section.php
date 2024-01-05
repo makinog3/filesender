@@ -66,7 +66,12 @@ $transfers_page = function($status) {
     // FIXME: move the code away from wanting to know the total.
     //       if the user has 1000 tuples do we really want to show 1000/15 direct page links
     //       or should we instead allow queries on timeframe etc.
-    $total_count = 100;
+
+    $total_count = Transfer::count(array(
+        'view'   => $trsort->getViewName(),
+        'where'  => $selector . $trsort->getWhereClause($selector)
+    ), $placeholders);
+
     $entries = Transfer::all(array(
         'view'   => $trsort->getViewName(),
         'where'  => $selector . $trsort->getWhereClause($selector),
@@ -97,6 +102,14 @@ $transfers_page = function($status) {
     for($o=0; $o<$total_count; $o+=$page_size) {
         if($o >= $offset && $o < $offset + $page_size) {
             $navigation .= '<span>'.$p.'</span>'."\n";
+        } elseif($o >= $offset - $page_size * $display_page_num &&
+                 $o < $offset - $page_size * ($display_page_num - 1) ||
+                 $o >= $offset + $page_size * $display_page_num &&
+                 $o < $offset + $page_size * ($display_page_num + 1)) {
+            $navigation .= '<span>'.'...'.'</span>'."\n";
+        } elseif($o < $offset - $page_size * $display_page_num ||
+                 $o >= $offset + $page_size * ($display_page_num + 1)) {
+            // nothing
         } else {
             $navigation .= '<a href="?s=admin&as=transfers&'.$status.'_tpo='.$o.'&transfersort='.$transfersort.$cgiminmax.'#'.$status.'_transfers">'.$p.'</a>'."\n";
         }
@@ -154,7 +167,6 @@ if( $idmax == -1 ) {
 
 
 <?php
-Logger::error("AAA " . $_POST['senderemail'] );
 $senderemail_full_match = Utilities::arrayKeyOrDefault( $_POST, 'senderemail_full_match', '', FILTER_VALIDATE_BOOLEAN );
 $senderemail = Utilities::arrayKeyOrDefault( $_POST, 'senderemail', '' ); // we don't want to FILTER_SANITIZE_EMAIL here
 $senderemail_full_match_extra = '';
@@ -164,7 +176,7 @@ if( $senderemail_full_match ) {
 echo "<p>{tr:search_transfer_by_sender_email_description}</p>\n";
 ?>
 
-<form action="https://sam/filesender/" method="post">
+<form action="{path:?s=admin&as=transfers}" method="post">
     <input type="hidden" name="s" value="admin" />
     <fieldset class="search">
         <fieldset class="search">

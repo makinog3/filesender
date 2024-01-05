@@ -483,6 +483,7 @@ class RestEndpointTransfer extends RestEndpoint
                 TransferOptions::GET_A_LINK => $allOptions[TransferOptions::GET_A_LINK]['default'],
                 TransferOptions::ADD_ME_TO_RECIPIENTS => $allOptions[TransferOptions::ADD_ME_TO_RECIPIENTS]['default'],
                 TransferOptions::EMAIL_RECIPIENT_WHEN_TRANSFER_EXPIRES => $allOptions[TransferOptions::EMAIL_RECIPIENT_WHEN_TRANSFER_EXPIRES]['default'],
+                TransferOptions::HIDE_SENDER_EMAIL => $allOptions[TransferOptions::HIDE_SENDER_EMAIL]['default'],
             );
             
             foreach ($allOptions as $name => $dfn) {

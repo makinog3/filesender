@@ -99,23 +99,30 @@ StatLog::createGlobal(LogEventTypes::GLOBAL_AVAILABLE_TRANSFERS, count(Transfer:
 
 // Close expired transfers
 if( $verbose ) echo "cron.php closing expired transfers...\n";
+$count = 0;	// FOR TEST
 foreach(Transfer::allExpired() as $transfer) {
     if($transfer->status == TransferStatuses::CLOSED) {
         continue;
     }
     Logger::info($transfer.' expired, closing it');
     $transfer->close(false, $force );
+    Logger::info("TEST: " . memory_get_usage(false) . " : close expired transfers " . ++$count);	// FOR TEST
+    if ($count % 10 == 0) gc_collect_cycles();	// FOR TEST
 }
 
 // Delete failed transfers
 if( $verbose ) echo "cron.php delete failed transfers...\n";
+$count = 0;	// FOR TEST
 foreach(Transfer::allFailed() as $transfer) {
     Logger::info($transfer.' failed, deleting it');
     $transfer->delete();
+    Logger::info("TEST: " . memory_get_usage(false) . " : delete failed transfers " . ++$count);	// FOR TEST
+    if ($count % 10 == 0) gc_collect_cycles();	// FOR TEST
 }
 
 // Close expired guests
 if( $verbose ) echo "cron.php close expired guests...\n";
+$count = 0;	// FOR TEST
 $days = Config::get('guests_expired_lifetime');
 foreach(Guest::allExpired() as $guest) {
     if($guest->does_not_expire) continue;
@@ -139,19 +146,25 @@ foreach(Guest::allExpired() as $guest) {
         Logger::info($guest.' expired, closing it');
         $guest->close(false);
     }
+    Logger::info("TEST: " . memory_get_usage(false) . " : close expired guests " . ++$count);	// FOR TEST
+    if ($count % 10 == 0) gc_collect_cycles();	// FOR TEST
 }
 
 // Delete expired audit logs and related data
 if( $verbose ) echo "cron.php Delete expired audit logs and related data...\n";
+$count = 0;	// FOR TEST
 foreach(Transfer::allExpiredAuditlogs() as $transfer) {
     Logger::info($transfer.' auditlogs expired, deleting them and deleting transfer data');
     AuditLog::clean($transfer);
     $transfer->deleteForce = $force;
     $transfer->delete();
+    Logger::info("TEST: " . memory_get_usage(false) . " : delete expired audit logs " . ++$count);	// FOR TEST
+    if ($count % 10 == 0) gc_collect_cycles();	// FOR TEST
 }
 
 // Send daily summaries
 if( $verbose ) echo "cron.php Send daily summaries...\n";
+$count = 0;	// FOR TEST
 foreach(Transfer::all(Transfer::AVAILABLE) as $transfer) {
     if(!$transfer->getOption(TransferOptions::EMAIL_DAILY_STATISTICS)) continue;
     
@@ -174,12 +187,16 @@ foreach(Transfer::all(Transfer::AVAILABLE) as $transfer) {
     }
     
     ApplicationMail::quickSend('daily_summary', $transfer->owner, $transfer, array('events' => $events));
+    Logger::info("TEST: " . memory_get_usage(false) . " : send daily summaries " . ++$count);	// FOR TEST
+    if ($count % 10 == 0) gc_collect_cycles();	// FOR TEST
 }
 
 // Send automatic reminders
 if( $verbose ) echo "cron.php Send automatic reminders...\n";
 if(Config::get('transfer_automatic_reminder'))
     Transfer::sendAutomaticReminders();
+Logger::info("TEST: " . memory_get_usage(false) . " : send automatic reminders");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // Report bounces ?
 if( $verbose ) echo "cron.php Report bounces ?...\n";
@@ -187,8 +204,11 @@ $report = Config::get('report_bounces');
 if(in_array($report, array('daily', 'asap_then_daily'))) {
     Logger::info('Bounces reporting in effect, gathering bounces and reporting them');
     
+    $count = 0;	// FOR TEST
     foreach(TrackingEvent::getNonReported(TrackingEventTypes::BOUNCE) as $set) {
         TrackingEvent::reportSet($set);
+        Logger::info("TEST: " . memory_get_usage(false) . " : report bounces " . ++$count);	// FOR TEST
+        if ($count % 10 == 0) gc_collect_cycles();	// FOR TEST
     }
 }
 
@@ -210,32 +230,50 @@ if((int)$level) {
         Logger::info('Storage is warning, reporting');
         SystemMail::quickSend('storage_usage_warning', array('warnings' => $block_warnings));
     }
+    Logger::info("TEST: " . memory_get_usage(false) . " : storage warning");	// FOR TEST
+    gc_collect_cycles();	// FOR TEST
 }
 
 // Remove inactive users preferences
 if( $verbose ) echo "cron.php Remove inactive users...\n";
 User::removeInactive();
+Logger::info("TEST: " . memory_get_usage(false) . " : remove inactive users");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // Clean old client logs
 if( $verbose ) echo "cron.php Clean up old client logs...\n";
 ClientLog::clean();
+Logger::info("TEST: " . memory_get_usage(false) . " : clean old client logs");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // Clean old translated emails
 if( $verbose ) echo "cron.php Clean old translated emails...\n";
 TranslatableEmail::clean();
+Logger::info("TEST: " . memory_get_usage(false) . " : clean old translated emails");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // Clean old tracking events 
 if( $verbose ) echo "cron.php Clean old tracking events...\n";
 TrackingEvent::clean();
+Logger::info("TEST: " . memory_get_usage(false) . " : clean old tracking events");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // Clean old tracking events 
 if( $verbose ) echo "cron.php Clean old tracking events (statlog)...\n";
 StatLog::clean();
+Logger::info("TEST: " . memory_get_usage(false) . " : clean statlogs");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // Clean old auditlog events
 if( $verbose ) echo "cron.php Clean old auditlog events...\n";
 AuditLog::cleanup();
+Logger::info("TEST: " . memory_get_usage(false) . " : clean old auditlog events");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
 
 // If we are configured to send aggregate (anonymous) statistics
 // to a central server then we should check if it is time to do that.
 AggregateStatistic::maybeSendReport();
+Logger::info("TEST: " . memory_get_usage(false) . " : send aggregate statistics");	// FOR TEST
+gc_collect_cycles();	// FOR TEST
+
+Logger::info("TEST: " . memory_get_peak_usage(false) . " : finish(peak)");	// FOR TEST

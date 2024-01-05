@@ -2,13 +2,13 @@
 
 /*
  * FileSender www.filesender.org
- *
+ * 
  * Copyright (c) 2009-2014, AARNet, Belnet, HEAnet, SURFnet, UNINETT
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * 
  * *	Redistributions of source code must retain the above copyright
  * 	notice, this list of conditions and the following disclaimer.
  * *	Redistributions in binary form must reproduce the above copyright
@@ -17,7 +17,7 @@
  * *	Neither the name of AARNet, Belnet, HEAnet, SURFnet and UNINETT nor the
  * 	names of its contributors may be used to endorse or promote products
  * 	derived from this software without specific prior written permission.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS'
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,36 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+require_once dirname(__FILE__).'/../../includes/init.php';
 
-/**
- * Class containing upload options
- */
+Logger::setProcess(ProcessTypes::UPGRADE);
 
-class TransferOptions extends Enum
-{
-    const EMAIL_ME_COPIES                           = 'email_me_copies';
-    const EMAIL_ME_ON_EXPIRE                        = 'email_me_on_expire';
-    const EMAIL_UPLOAD_COMPLETE                     = 'email_upload_complete';
-    const EMAIL_DOWNLOAD_COMPLETE                   = 'email_download_complete';
-    const EMAIL_DAILY_STATISTICS                    = 'email_daily_statistics';
-    const EMAIL_REPORT_ON_CLOSING                   = 'email_report_on_closing';
-    const ENABLE_RECIPIENT_EMAIL_DOWNLOAD_COMPLETE  = 'enable_recipient_email_download_complete';
-    const ADD_ME_TO_RECIPIENTS                      = 'add_me_to_recipients';
-    const EMAIL_RECIPIENT_WHEN_TRANSFER_EXPIRES     = 'email_recipient_when_transfer_expires';
-    
-    const GET_A_LINK                                = 'get_a_link';
-    
-    const HIDE_SENDER_EMAIL                         = 'hide_sender_email';
-    
-    const REDIRECT_URL_ON_COMPLETE                  = 'redirect_url_on_complete';
+DBI::beginTransaction();
 
-    const ENCRYPTION                                = 'encryption';
-    const COLLECTION                                = 'collection';
-    const MUST_BE_LOGGED_IN_TO_DOWNLOAD             = 'must_be_logged_in_to_download';
+DBI::exec( 'alter table AggregateStatistics  drop foreign key AggregateStatistic_epochtype  ' );
+DBI::exec( 'alter table AggregateStatistics  drop foreign key AggregateStatistic_eventtype  ' );
+DBI::exec( 'alter table StatLogs  drop foreign key statlogs_browsertype  ' );
+DBI::exec( 'alter table StatLogs  drop foreign key statlogs_operatingsystem  ' );
+DBI::exec( 'alter table Transfers drop foreign key transfer_passwordencoding  ' );
+/*
+DBI::exec( 'alter table FileChunkDigests drop foreign key FileChunkDigest_digestnameid' );
+DBI::exec( 'alter table FileChunkDigests drop foreign key FileChunkDigest_fileid' );
+*/
 
-    // Optional options specific to S3 storage
-    const STORAGE_CLOUD_S3_BUCKET                   = 'storage_cloud_s3_bucket';
     
-    const WEB_NOTIFICATION_WHEN_UPLOAD_IS_COMPLETE  = 'web_notification_when_upload_is_complete';
-    
-}

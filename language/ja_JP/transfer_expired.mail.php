@@ -8,6 +8,7 @@
 // 
 ?>
 subject: ファイルをダウンロードできなくなりました
+subject: {if:transfer.subject}(ファイルダウンロード不可){endif}{transfer.subject}
 
 {alternative:plain}
 

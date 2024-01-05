@@ -40,6 +40,8 @@ Logger::info('Email feedback handler started');
 
 $remove_after_processing = false;
 $move_after_processing = false;
+$move_after_process_fail = false;
+$testingMode = false;
 $inputs = array();
 
 foreach(array_slice($argv, 1) as $arg) {
@@ -50,9 +52,22 @@ foreach(array_slice($argv, 1) as $arg) {
         if($m[1]) {
             $move_after_processing = preg_replace('`/+$`', '', $m[2]);
         } else $move_after_processing = 'done';
+    
+    } else if(preg_match('/^--move_after_process_fail(=(.*))?$/', $arg, $m)) {
+        if($m[1]) {
+            $move_after_process_fail = preg_replace('`/+$`', '', $m[2]);
+        } else $move_after_process_fail = 'failures';
+
+    } else if(preg_match('/^--testing-mode$/', $arg)) {
+        $testingMode = true;
+
     } else {
         $inputs[] = $arg;
     }
+}
+
+if( $testingMode ) {
+    Mail::TESTING_SET_DO_NOT_SEND_EMAIL();
 }
 
 if(!count($inputs)) $inputs[] = '-';
@@ -238,21 +253,32 @@ while($inputs) {
         if($input != '-') {
             if($remove_after_processing) {
                 unlink($input);
-                
             } else if($move_after_processing) {
-                $target = $move_after_processing;
-                if(substr($target, 0, 1) != '/') $target = dirname($input).'/'.$target;
-                
-                if(!is_dir($target) && !mkdir($target, 0777, true))
-                    throw new Exception('target directory "'.$target.'" does not exist and cannot be created');
-                
-                copy($input, $target.'/'.basename($input));
-                unlink($input);
+                moveFile($input, $move_after_processing);
             }
         }
         
     } catch(Exception $e) {
         Logger::error($input.' processing failed : '.$e->getMessage());
+        try {
+            if($input != '-' && is_file($input)) {
+                if($move_after_process_fail) {
+                    moveFile($input, $move_after_process_fail);
+                }
+            }
+        } catch(Exception $e) {
+        }
         continue;
     }
+}
+
+function moveFile($input, $target)
+{
+    if(substr($target, 0, 1) != '/') $target = dirname($input).'/'.$target;
+
+    if(!is_dir($target) && !mkdir($target, 0777, true))
+        throw new Exception('target directory "'.$target.'" does not exist and cannot be created');
+
+    copy($input, $target.'/'.basename($input));
+    unlink($input);
 }

@@ -13,7 +13,7 @@ subject: ダウンロードのお知らせ
 
 利用者様、
 
-あなたがアップロードしたファイルを、{recipient.email}が{cfg:site_name}からダウンロードしました:
+あなたがアップロードしたファイルを、{if:recipient.email}{recipient.email}{else}匿名ユーザー{endif}が{cfg:site_name}からダウンロードしました:
 
 {if:files>1}{each:files as file}
   - {file.path} ({size:file.size})
@@ -33,7 +33,7 @@ subject: ダウンロードのお知らせ
 </p>
 
 <p>
-    あなたがアップロードしたファイルを、{recipient.email}が{cfg:site_name}からダウンロードしました:
+    あなたがアップロードしたファイルを、{if:recipient.email}{recipient.email}{else}匿名ユーザー{endif}が{cfg:site_name}からダウンロードしました:
 </p>
 
 <p>

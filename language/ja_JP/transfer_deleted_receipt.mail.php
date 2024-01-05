@@ -8,6 +8,7 @@
 // 
 ?>
 subject: ファイルの削除
+subject: {if:transfer.subject}(ファイル削除){endif}{transfer.subject}
 
 {alternative:plain}
 
