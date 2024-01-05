@@ -220,7 +220,7 @@ class ApplicationMail extends Mail
             $from = array_shift($from);
         }
         
-        if ($from) {
+        if ($from && !$this->from) {
             if ($from != 'sender' && !Utilities::validateEmail($from)) {
                 throw new ConfigBadParameterException('email_from');
             }
@@ -263,6 +263,12 @@ class ApplicationMail extends Mail
                 
                 $this->addHeader('From', $from);
             }
+        } elseif ($this->from) {
+            $from = $this->from;
+            if (!Utilities::validateEmail($from)) {
+                throw new BadEmailException($from);
+            }
+            $this->addHeader('From', $from);
         }
         
         // Build reply-to field depending on config
@@ -292,7 +298,7 @@ class ApplicationMail extends Mail
         
         // Build return path field depending on config
         $return_path = Config::get('email_return_path');
-        if ($return_path) {
+        if ($return_path && !$this->return_path) {
             if ($return_path != 'sender' && !Utilities::validateEmail(str_replace('<verp>', 'verp', $return_path))) {
                 throw new ConfigBadParameterException('email_return_path');
             }

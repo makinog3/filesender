@@ -166,6 +166,7 @@ $default = array(
     'storage_filesystem_shred_path' => FILESENDER_BASE.'/shredfiles',
     
     'email_from' => 'sender',
+    'email_from_failed' => false,
     'email_return_path' => 'sender',
     'email_subject_prefix' => '{cfg:site_name}:',
     'email_headers' => false,

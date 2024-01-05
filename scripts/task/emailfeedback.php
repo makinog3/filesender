@@ -40,7 +40,9 @@ Logger::info('Email feedback handler started');
 
 $remove_after_processing = false;
 $move_after_processing = false;
+$move_after_process_unknown = false;
 $move_after_process_fail = false;
+$notify_after_process_fail = false;
 $testingMode = false;
 $inputs = array();
 
@@ -53,10 +55,20 @@ foreach(array_slice($argv, 1) as $arg) {
             $move_after_processing = preg_replace('`/+$`', '', $m[2]);
         } else $move_after_processing = 'done';
     
+    } else if(preg_match('/^--move_after_process_unknown(=(.*))?$/', $arg, $m)) {
+        if($m[1]) {
+            $move_after_process_unknown = preg_replace('`/+$`', '', $m[2]);
+        }
+
     } else if(preg_match('/^--move_after_process_fail(=(.*))?$/', $arg, $m)) {
         if($m[1]) {
             $move_after_process_fail = preg_replace('`/+$`', '', $m[2]);
         } else $move_after_process_fail = 'failures';
+
+    } else if(preg_match('/^--notify_after_process_fail(=(.*))?$/', $arg, $m)) {
+        if($m[1]) {
+            $notify_after_process_fail = $m[2];
+        } else $notify_after_process_fail = 'return';
 
     } else if(preg_match('/^--testing-mode$/', $arg)) {
         $testingMode = true;
@@ -65,6 +77,8 @@ foreach(array_slice($argv, 1) as $arg) {
         $inputs[] = $arg;
     }
 }
+
+
 
 if( $testingMode ) {
     Mail::TESTING_SET_DO_NOT_SEND_EMAIL();
@@ -201,6 +215,15 @@ while($inputs) {
                 ($report == 'asap_then_daily' && $bounce->created < $target->transfer->created + $range)
             )
                 $bounce->report();
+        
+            if($input != '-') {
+                if($remove_after_processing) {
+                    unlink($input);
+                } else if($move_after_processing) {
+                    moveFile($input, $move_after_processing);
+                }
+            }
+            Logger::info('Processed as the bounced mail to '.$target->owner->email.': '.basename($input));
             
         } else { // Unknown feedback type
             $relay_to = Config::get('relay_unknown_feedbacks'); // Do we need to relay it to somebody ?
@@ -248,14 +271,18 @@ while($inputs) {
                 // Send
                 $mail->send();
             }
-        }
         
-        if($input != '-') {
-            if($remove_after_processing) {
-                unlink($input);
-            } else if($move_after_processing) {
-                moveFile($input, $move_after_processing);
+            if($input != '-') {
+                if($remove_after_processing) {
+                    unlink($input);
+                } else if($move_after_process_unknown) {
+                    moveFile($input, $move_after_process_unknown);
+                } else if($move_after_processing) {
+                    moveFile($input, $move_after_processing);
+                }
             }
+            Logger::info('Processed as the feedback mail to '.$target->owner->email.': '.basename($input));
+        
         }
         
     } catch(Exception $e) {
@@ -265,6 +292,58 @@ while($inputs) {
                 if($move_after_process_fail) {
                     moveFile($input, $move_after_process_fail);
                 }
+            }
+            if($notify_after_process_fail &&
+               ($notify_after_process_fail != 'return' ||
+                ($headers->return_path &&
+                 $headers->return_path != '<>'))) {
+                switch($notify_after_process_fail) {
+                    case 'return':
+                        $mail = new ApplicationMail(Lang::translateEmail('email_feedback_fail')->r([]));
+                        $mail->setDebugTemplate('email_feedback_fail');
+                        if (preg_match('/^.*<(.+)>.*$/', $headers->return_path, $m)) {
+                            $mail->to($m[1]);
+                        } else {
+                            $mail->to($headers->return_path);
+                        }
+                        $mail->return_path = '<>';
+                        $mail->from = Config::get('email_from_failed');
+                        break;
+                        
+                    case 'admin':
+                        $mail = new SystemMail(Lang::translateEmail('email_feedback_fail')->r([]));
+                        $mail->setDebugTemplate('email_feedback_fail');
+                        break;
+                        
+                    case 'support':
+                        $support = Config::get('support_email');
+                        if(strlen($support)) {
+                            if(!Utilities::validateEmail($support)) throw new BadEmailException($support);
+                            
+                            $mail = new ApplicationMail(Lang::translateEmail('email_feedback_fail')->r([]));
+                            $mail->setDebugTemplate('email_feedback_fail');
+                            $mail->to($support);
+                        } else throw new ConfigBadParameterException('support_email');
+                        
+                    default:
+                        if(Utilities::validateEmail($notify_after_process_fail)) {
+                            $mail = new ApplicationMail(Lang::translateEmail('email_feedback_fail')->r([]));
+                            $mail->setDebugTemplate('email_feedback_fail');
+                            $mail->to($notify_after_process_fail);
+                        } else throw new Exception('not a valid email to notify_after_process_fail');
+                }
+                
+                // Attach report
+                $attachment = new MailAttachment("feedback_" . ($headers->message_id ? $headers->message_id : "unknown") . '.eml');
+                $attachment->transfer_encoding = 'raw';
+                $attachment->disposition = 'inline';
+                $attachment->content = $message;
+                $mail->attach($attachment);
+                
+                // Send
+                $mail->send();
+                Logger::info('Processed as the failed mail to '.$headers->return_path.': '.basename($input));
+
             }
         } catch(Exception $e) {
         }

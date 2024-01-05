@@ -55,6 +55,11 @@ class Mail
 
 
     /**
+     * From value
+     */
+    private $from = null;
+    
+    /**
      * Return path value
      */
     private $return_path = null;
@@ -130,8 +135,14 @@ class Mail
     {
         if ($property == 'subject') {
             $this->subject = mb_encode_mimeheader(trim(str_replace(array("\n", "\r"), ' ', $value)), mb_internal_encoding(), 'Q', $this->nl);
-        } elseif ($property == 'return_path') {
+        } elseif ($property == 'from') {
             if (!Utilities::validateEmail($value)) {
+                throw new BadEmailException($value);
+            }
+            $this->from = (string)$value;
+        } elseif ($property == 'return_path') {
+            if (!$value == '<>' &&
+                !Utilities::validateEmail($value)) {
                 throw new BadEmailException($value);
             }
             $this->return_path = (string)$value;
@@ -144,6 +155,26 @@ class Mail
         }
     }
     
+    /**
+     * Getter
+     *
+     * @param string $property property to get
+     */
+    public function __get($property)
+    {
+        if (in_array($property, array(
+            'subject', 'from', 'return_path', 'html', 'msg_id'
+        ))) {
+            return $this->$property;
+        }
+        if (in_array($property, array(
+            'to', 'cc', 'bcc'
+        ))) {
+            return $this->rcpt[ucfirst($property)];
+        }
+        return null;
+    }
+
     /**
      * Adds recipient
      *
