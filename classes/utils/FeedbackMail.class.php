@@ -231,7 +231,12 @@ class FeedbackMailPart
         
         // Convert charset if different than utf8
         if ($o->headers->content_type_charset) {
-            $o->content = iconv($o->headers->content_type_charset, 'UTF-8', $o->content);
+            $o->content = @iconv($o->headers->content_type_charset, 'UTF-8', $o->content);
+            $e = error_get_last();
+            if ($e) {
+                Logger::warn("PHP " . $e['type'] . ": " . $e['message'] . " in " . $e['file'] . " on line " . $e['line']);
+                error_clear_last();
+            }
         }
         
         return $o;
