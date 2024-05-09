@@ -11,7 +11,7 @@ subject: Undelivered Mail Returned to Sender
 
 {alternative:plain}
 
-This is the mail system at host filesender.nii.ac.jp.
+This is the mail system at host {cfg:site_name}
  
 I'm sorry to have to inform you that your message could not
 be delivered to one or more recipients. It's attached below.
@@ -21,19 +21,26 @@ delete your own text from the attached returned message.
  
                    The mail system
  
-<noreply-filesender@nii.ac.jp>: unknown user: "noreply-filesender@nii.ac.jp"
+<{cfg:email_from}>: unknown user
 
 {alternative:html}
 
-This is the mail system at host filesender.nii.ac.jp.
- 
+<p>
+This is the mail system at host {cfg:site_name}
+</p>
+
+<p>
 I'm sorry to have to inform you that your message could not
 be delivered to one or more recipients. It's attached below.
 For further assistance, please send mail to postmaster.
 If you do so, please include this problem report. You can
 delete your own text from the attached returned message.
+</p>
  
+<p>
                    The mail system
+</p>
  
-<noreply-filesender@nii.ac.jp>: unknown user: "noreply-filesender@nii.ac.jp"
-
+<p>
+&lt;{cfg:email_from}&gt;: unknown user
+</p>
