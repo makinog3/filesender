@@ -8,6 +8,7 @@
 // 
 ?>
 subject: ファイルの有効期限が切れています
+subject: {if:transfer.subject}(ファイル有効期限切れ){endif}{transfer.subject}
 
 {alternative:plain}
 

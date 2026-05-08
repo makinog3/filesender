@@ -1,4 +1,9 @@
 <div class="box">
+
+<?php
+include_once "information.php"
+?>
+
     {tr:site_splash}
     
     <div class="logon">

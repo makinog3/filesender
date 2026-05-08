@@ -181,7 +181,7 @@ if (!function_exists('clickableHeader')) {
             </th>
             
             <th class="downloads">
-                <?php clickableHeader('{tr:downloads}',TransferQueryOrder::COLUMN_DOWNLOAD,$trsort,$nosort); ?>
+                {tr:downloads}
             </th>
             
             <th class="expires">

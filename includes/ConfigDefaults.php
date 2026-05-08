@@ -177,6 +177,7 @@ $default = array(
     'transfers_table_show_admin_full_path_to_each_file' => false,
     
     'email_from' => 'sender',
+    'email_from_failed' => false,
     'email_return_path' => 'sender',
     'email_subject_prefix' => '{cfg:site_name}:',
     'email_headers' => false,
@@ -197,7 +198,7 @@ $default = array(
     'report_format' => ReportFormats::INLINE,
 
     // Note that this must not have a fixed end of string '$' as the last character in the match 
-    'valid_filename_regex' => '^[ \\/\\p{L}\\p{N}_\\.,;:!@#$%^&*)(\\]\\[_-]+',
+    'valid_filename_regex' => '^['."\u{2010}-\u{2027}\u{2030}-\u{205F}\u{2070}-\u{FFEF}\u{10000}-\u{10FFFF}".' \\/\\p{L}\\p{N}_\\.,;:!@#$%^&*+)(\\]\\[_-]+$',
     'message_can_not_contain_urls_regex' => '',
 //    'message_can_not_contain_urls_regex' => '(ftp:|http[s]*:|[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})',
 
@@ -308,7 +309,7 @@ $default = array(
 
     'streamsaver_enabled' => true,
     'streamsaver_on_unknown_browser' => false,
-    'streamsaver_on_firefox' => false,
+    'streamsaver_on_firefox' => true,
     'streamsaver_on_chrome' => true,
     'streamsaver_on_edge'   => true,
     'streamsaver_on_safari' => true,
@@ -437,6 +438,8 @@ $default = array(
             'default' => false
         ),
     ),
+
+    'hide_sender_email_enabled' => false,
 
     'guest_upload_page_hide_unchangable_options' => false,
 

@@ -599,6 +599,8 @@ class RestEndpointTransfer extends RestEndpoint
                 unset($options[TransferOptions::EMAIL_ME_COPIES]);
                 unset($options[TransferOptions::ENABLE_RECIPIENT_EMAIL_DOWNLOAD_COMPLETE]);
                 unset($options[TransferOptions::ADD_ME_TO_RECIPIENTS]);
+            } else {
+                unset($options[TransferOptions::HIDE_SENDER_EMAIL]);
             }
             
             // No recipients, not get_a_link and no way to get a recipient from options ? Fail if so

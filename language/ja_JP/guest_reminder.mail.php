@@ -8,7 +8,7 @@
 // 
 ?>
 subject: (リマインダー)ゲストバウチャーの受信
-subject: (リマインダー){guest.subject}
+subject: {if:guest.subject}(リマインダー){endif}{guest.subject}
 
 {alternative:plain}
 

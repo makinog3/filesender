@@ -161,7 +161,8 @@ $showdownloadlinks = Utilities::isTrue(Config::get('download_show_download_links
             <label for="streamsaverenabled">{tr:use_streamsaver_for_download}</label>
         </div>
     <?php } ?>
-                            
+
+    <?php if( Utilities::isTrue(Config::get('download_verification_code_enabled'))) { ?>
     <div class="verify_email_to_download">
         <h2>{tr:verify_your_email_address_to_download}</h2>
 
@@ -194,7 +195,7 @@ $showdownloadlinks = Utilities::isTrue(Config::get('download_show_download_links
         </table>
         
     </div>
-    
+<?php } ?>
     
     <div class="general box" data-transfer-size="<?php echo Template::Q($transfer->size) ?>">
         <?php if(!array_key_exists('hide_sender_email', $transfer->options) ||

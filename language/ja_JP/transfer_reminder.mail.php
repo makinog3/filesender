@@ -8,7 +8,7 @@
 // 
 ?>
 subject: (リマインダー)ファイルがダウンロードできます
-subject: (リマインダー){transfer.subject}
+subject: {if:transfer.subject}(リマインダー){endif}{transfer.subject}
 
 {alternative:plain}
 
@@ -17,14 +17,14 @@ subject: (リマインダー){transfer.subject}
 これはリマインダーです。{transfer.user_email}が、次のファイルを{cfg:site_name}にアップロードしました。あなたにはそのコンテンツをダウンロードする権限が与えられています:
 
 {if:transfer.files>1}{each:transfer.files as file}
-  -{file.path} ({size:file.size})
+  - {file.path} ({size:file.size})
 {endeach}{else}
 {transfer.files.first().path} ({size:transfer.files.first().size})
 {endif}
 
 ダウンロードリンク:{recipient.download_link}
 
-トランザクションは{date:transfer.expires}に無効になり、この日以降に自動的に削除されます。
+トランザクションは{date:transfer.expires}に無効化され、この日以降に自動的に削除されます。
 
 {if:transfer.message || transfer.subject}
 {transfer.user_email}からの個人的なメッセージ:{transfer.subject}
