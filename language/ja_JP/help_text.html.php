@@ -13,6 +13,12 @@
      FileSenderは認証された利用者がセキュアかつ簡単に他者に大容量ファイルを送信できるようにするウェブベースのアプリケーションです。アカウントを持たない利用者は認証ユーザーにアップロードバウチャーを送ってもらうことができます。FileSenderは高等教育・研究コミュニティの要件に合わせて開発されています。
 </p>
 
+<p>
+{cfg:site_name}の操作方法については<a rel="nofollow" href="https://meatwiki.nii.ac.jp/confluence/x/grUHB" target="_blank">こちら</a>をご覧ください。<br />
+     ⇒<a rel="nofollow" href="https://meatwiki.nii.ac.jp/confluence/x/grUHB" target="_blank">NII FileSender 利用マニュアル</a>
+</p>
+<br />
+
 <h4>ゲスト向け...</h4>
 
 <p>
